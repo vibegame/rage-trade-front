@@ -103,25 +103,23 @@ export default function TableBalances({ data }: TableBalancesProps) {
       </thead>
       <tbody>
         {data.map((row, index) => (
-          <>
-            <tr
-              key={index}
-              className="group border-b border-b-gray-10 transition-colors hover:bg-gray-10"
-            >
-              {columns.map((column, index) => (
-                <td
-                  key={index}
-                  className={twMerge("py-3", index === 0 && "pl-8")}
-                  style={{
-                    width: column.width,
-                    minWidth: column.minWidth
-                  }}
-                >
-                  {column.render(row)}
-                </td>
-              ))}
-            </tr>
-          </>
+          <tr
+            key={index}
+            className="group border-b border-b-gray-10 transition-colors hover:bg-gray-10"
+          >
+            {columns.map((column, index) => (
+              <td
+                key={index}
+                className={twMerge("py-3", index === 0 && "pl-8")}
+                style={{
+                  width: column.width,
+                  minWidth: column.minWidth
+                }}
+              >
+                {column.render(row)}
+              </td>
+            ))}
+          </tr>
         ))}
       </tbody>
     </table>
