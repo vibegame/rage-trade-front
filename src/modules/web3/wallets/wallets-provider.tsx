@@ -53,8 +53,12 @@ const WalletsProvider = ({ children }: WalletsProviderProps) => {
   const [tokens, setTokens] = useState<Web3Token[]>([]);
 
   const [wallets, setWallets] = useState<Wallet[]>(() => {
-    const wallets = localStorage.getItem(persistKey);
-    return wallets ? JSON.parse(wallets) : [];
+    if (typeof window !== "undefined") {
+      const wallets = window.localStorage.getItem(persistKey);
+      return wallets ? JSON.parse(wallets) : [];
+    }
+
+    return [];
   });
 
   const getWalletTokensBalance = async (
