@@ -7,6 +7,7 @@ import uniLogo from "./uniswap.png";
 import wbtcLogo from "./wbtc.png";
 import wethLogo from "./weth.png";
 import linkLogo from "./link.png";
+import ethLogo from "./eth.png";
 import { StaticImageData } from "next/image";
 
 export const chainLogoMap: Record<number, StaticImageData> = {
@@ -22,5 +23,6 @@ export const tokensLogoMap: Record<string, StaticImageData> = {
   WETH: wethLogo,
   LINK: linkLogo,
   OP: optimismLogo,
-  ARB: arbitrumLogo
+  ARB: arbitrumLogo,
+  ETH: ethLogo
 };

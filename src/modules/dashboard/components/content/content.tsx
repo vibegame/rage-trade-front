@@ -39,17 +39,12 @@ export default function Content() {
             logo: chains[token.chainId].logo.src
           },
           balance: {
-            token: {
-              count: Number(token.balance),
-              value: token.balance
-            },
-            value: {
-              usd: token.value.usd
-            }
+            token: token.balance,
+            usd: token.value.usd
           },
           transfer: () => alert(`Transfer ${token.name}`),
           percentage:
-            (Number(token.balance) /
+            (Number(token.value.usd) /
               walletsBalances[token.wallet.connector.name]) *
               100 || 0
         }))}

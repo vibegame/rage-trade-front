@@ -6,7 +6,7 @@ import { Connector } from "wagmi";
 export type Web3Token = {
   name: string;
   symbol: string;
-  balance: bigint;
+  balance: string;
   chainId: number;
   decimals: number;
   wallet: Wallet;

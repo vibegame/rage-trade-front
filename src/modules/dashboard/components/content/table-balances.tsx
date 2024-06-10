@@ -22,12 +22,8 @@ type DataItem = {
     name: string;
   };
   balance: {
-    token: {
-      count: number;
-    };
-    value: {
-      usd: number;
-    };
+    token: string;
+    usd: number;
   };
 };
 
@@ -61,7 +57,9 @@ export default function TableBalances({ data }: TableBalancesProps) {
             height={24}
             alt="Wallet Logo"
           />
-          <span>{row.wallet.name}</span>
+          <span className="text-xs font-semibold text-gray-5">
+            {row.wallet.name}
+          </span>
         </div>
       )
     },
@@ -69,7 +67,7 @@ export default function TableBalances({ data }: TableBalancesProps) {
       title: "100%",
       render: (row: DataItem) => (
         <div className="inline-block rounded-full bg-gray-11 px-3 py-1 text-xs font-semibold text-gray-5 transition-colors group-hover:bg-gray-9 group-hover:text-gray-1">
-          {row.percentage}%
+          {row.percentage.toFixed(2)}%
         </div>
       )
     },
@@ -95,10 +93,10 @@ export default function TableBalances({ data }: TableBalancesProps) {
       render: (row: DataItem) => (
         <div className="flex flex-col">
           <span className="text-xs font-semibold text-gray-1">
-            {row.balance.token.count} {row.asset.name}
+            {row.balance.token} {row.asset.name}
           </span>
           <span className="text-xs font-semibold text-gray-5">
-            {row.balance.value.usd}$
+            {row.balance.usd.toFixed(2)}$
           </span>
         </div>
       )

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { twMerge } from "tailwind-merge";
 import userAvatar from "shared/assets/user-avatar.png";
 import { Popover } from "shared/ui/popover";
-import { IoCopy } from "react-icons/io5";
+import { IoCopy, IoLogOut } from "react-icons/io5";
 import { useToasts } from "shared/ui/toast";
 import { useAccount } from "wagmi";
 import { useWallets } from "modules/web3";
@@ -21,21 +21,18 @@ export default function HeaderAccount({ className }: Props) {
 
   return (
     <div className={twMerge("ml-auto flex items-center gap-2", className)}>
+      <button className="flex h-9 cursor-pointer items-center gap-2 rounded-4 border border-gray-10 bg-gray-11 px-2 hover:bg-gray-9">
+        <Image alt="Wallet Avatar" width={24} height={24} src={userAvatar} />
+        <span className="text-xs font-semibold">${fullBalance.toFixed(2)}</span>
+      </button>
+
+      <ConnectWalletButton />
+
       <Popover
         trigger={
-          <div className={twMerge("flex items-center gap-2")}>
-            <button className="flex cursor-pointer items-center gap-2 rounded-4 border border-gray-10 bg-gray-11 px-2 py-[6px] hover:bg-gray-9">
-              <Image
-                alt="Wallet Avatar"
-                width={24}
-                height={24}
-                src={userAvatar}
-              />
-              <span className="text-xs font-semibold">
-                ${fullBalance.toFixed(2)}
-              </span>
-            </button>
-          </div>
+          <button className="flex size-9 items-center justify-center gap-2 rounded-4 bg-gray-10 hover:bg-gray-9">
+            <IoLogOut />
+          </button>
         }
       >
         <div className="bg-gray-10 p-3">
@@ -70,7 +67,6 @@ export default function HeaderAccount({ className }: Props) {
           </button>
         </div>
       </Popover>
-      <ConnectWalletButton />
     </div>
   );
 }
