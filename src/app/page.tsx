@@ -7,7 +7,7 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen w-screen flex-col">
       <Header className="shrink-0" />
-      <div className="flex h-full shrink">
+      <div className="flex h-full shrink overflow-hidden">
         <Sidebar />
         <Content />
       </div>

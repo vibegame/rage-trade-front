@@ -4,15 +4,15 @@ import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import HeaderNavigation from "./header-navigation";
 import ConnectWalletButton from "./connect-wallet-button";
-import { useState } from "react";
 import HeaderAccount from "./header-account";
+import { useAccount } from "wagmi";
 
 type Props = {
   className?: string;
 };
 
 export default function Header({ className }: Props) {
-  const [connected, setConnected] = useState(true);
+  const { isConnected } = useAccount();
 
   return (
     <div
@@ -25,7 +25,7 @@ export default function Header({ className }: Props) {
         <Image src={logo} alt="Rage Trade Logo" height={24} width={112} />
       </Link>
       <HeaderNavigation className="ml-24" />
-      {connected ? (
+      {isConnected ? (
         <HeaderAccount className="ml-auto" />
       ) : (
         <ConnectWalletButton className="ml-auto" />

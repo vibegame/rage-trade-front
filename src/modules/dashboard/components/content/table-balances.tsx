@@ -15,7 +15,14 @@ type DataItem = {
     logo: string;
     name: string;
   };
-  balance: number;
+  balance: {
+    token: {
+      count: number;
+    };
+    value: {
+      usd: number;
+    };
+  };
 };
 
 type TableBalancesProps = {
@@ -32,7 +39,12 @@ type TableColumn = {
 const columns: TableColumn[] = [
   {
     title: "Wallet",
-    render: (row: DataItem) => <div>{row.wallet.name}</div>
+    render: (row: DataItem) => (
+      <div className="flex items-center gap-2">
+        <Image src={row.wallet.logo} width={24} height={24} alt="Wallet Logo" />
+        <span>{row.wallet.name}</span>
+      </div>
+    )
   },
   {
     title: "100%",
@@ -51,7 +63,8 @@ const columns: TableColumn[] = [
   {
     title: "Asset",
     render: (row: DataItem) => (
-      <div>
+      <div className="flex items-center gap-2">
+        <Image src={row.asset.logo} width={24} height={24} alt="Asset Logo" />
         <span className="text-xs font-semibold text-gray-1">
           {row.asset.name}
         </span>
@@ -63,10 +76,10 @@ const columns: TableColumn[] = [
     render: (row: DataItem) => (
       <div className="flex flex-col">
         <span className="text-xs font-semibold text-gray-1">
-          {row.balance} {row.asset.name}
+          {row.balance.token.count} {row.asset.name}
         </span>
         <span className="text-xs font-semibold text-gray-5">
-          {row.balance}$
+          {row.balance.value.usd}$
         </span>
       </div>
     )
