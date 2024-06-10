@@ -24,6 +24,7 @@ export default function Content() {
       <TopBalances />
       <TableBalances
         data={tokens.map((token) => ({
+          address: token.address,
           asset: {
             name: token.name,
             logo: tokensLogoMap[token.symbol]?.src || ""
@@ -33,6 +34,7 @@ export default function Content() {
             logo: token.wallet.connector.icon
           },
           chain: {
+            id: token.chainId,
             name: chains[token.chainId].name,
             logo: chains[token.chainId].logo.src
           },
