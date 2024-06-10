@@ -12,24 +12,26 @@ type WalletItemProps = {
   name: string;
   onClick?: () => void;
   icon: string;
-  active: boolean;
+  connected: boolean;
 };
 
-const WalletItem = ({ name, icon, onClick, active }: WalletItemProps) => {
+const WalletItem = ({ name, icon, onClick, connected }: WalletItemProps) => {
   return (
     <button
       className={twMerge(
         "flex w-full items-center gap-2 rounded-8 bg-gray-11 px-4 py-2 text-left transition-colors ",
-        active ? "bg-gray-10 cursor-auto" : "hover:bg-gray-9"
+        connected ? "bg-gray-10 cursor-auto" : "hover:bg-gray-9"
       )}
-      onClick={active ? undefined : onClick}
+      onClick={connected ? undefined : onClick}
     >
       <Image src={icon} width={24} height={24} alt={name} />
       <span className="text-gray-3">{name}</span>
-      <div className="ml-auto flex items-center gap-1">
-        <span className="size-1 rounded-full bg-[#26ff4a]"></span>
-        <span className="text-xs font-semibold">Connected</span>
-      </div>
+      {connected && (
+        <div className="ml-auto flex items-center gap-1">
+          <span className="size-1 rounded-full bg-[#26ff4a]"></span>
+          <span className="text-xs font-semibold">Connected</span>
+        </div>
+      )}
     </button>
   );
 };
@@ -61,7 +63,7 @@ export default function ConnectWalletModal({ isOpen, setIsOpen }: Props) {
                   setIsOpen(false);
                 }}
                 icon={connector.icon || ""}
-                active={active}
+                connected={active}
               />
             );
           })}

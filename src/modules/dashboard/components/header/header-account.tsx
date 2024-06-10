@@ -2,7 +2,6 @@ import Image from "next/image";
 import { twMerge } from "tailwind-merge";
 import userAvatar from "shared/assets/user-avatar.png";
 import { Popover } from "shared/ui/popover";
-import metamaskLogo from "shared/assets/metamask.png";
 import { IoCopy } from "react-icons/io5";
 import { useToasts } from "shared/ui/toast";
 import { useAccount } from "wagmi";
@@ -15,7 +14,7 @@ type Props = {
 
 export default function HeaderAccount({ className }: Props) {
   const { disconnect, fullBalance } = useWallets();
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const toasts = useToasts();
 
   if (!address) throw new Error("Account not found");
@@ -41,12 +40,14 @@ export default function HeaderAccount({ className }: Props) {
       >
         <div className="bg-gray-10 p-3">
           <div className="flex items-center gap-2">
-            <Image
-              src={metamaskLogo}
-              width={24}
-              height={24}
-              alt="Metamask Logo"
-            />
+            {!!connector && !!connector.icon && (
+              <Image
+                src={connector.icon}
+                width={24}
+                height={24}
+                alt="Metamask Logo"
+              />
+            )}
             <span>
               {address.slice(0, 6)}...{address.slice(-4)}
             </span>

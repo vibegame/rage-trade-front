@@ -2,6 +2,8 @@ import { SendTransactionModal } from "modules/web3";
 import Image from "next/image";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { useAccount } from "wagmi";
+import ConnectWalletButton from "../header/connect-wallet-button";
 
 type DataItem = {
   address: string;
@@ -41,6 +43,8 @@ type TableColumn = {
 };
 
 export default function TableBalances({ data }: TableBalancesProps) {
+  const { isConnected } = useAccount();
+
   const [transaction, setTransaction] = useState<{
     chainId: number;
     account: string;
@@ -158,6 +162,7 @@ export default function TableBalances({ data }: TableBalancesProps) {
           ))}
         </tbody>
       </table>
+      {!isConnected && <ConnectWalletButton className="mx-auto mt-8" />}
       {transaction && (
         <SendTransactionModal
           onClose={() => setTransaction(null)}
