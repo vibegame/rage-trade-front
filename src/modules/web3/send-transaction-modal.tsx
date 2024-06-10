@@ -39,6 +39,8 @@ export default function SendTransactionModal({
               to: address as Address,
               value: parseEther(value)
             });
+            toasts.addToast("Transaction successfully sent");
+            onClose();
           } catch (e) {
             if (e instanceof Error) {
               toasts.addToast(e.message);
@@ -66,7 +68,10 @@ export default function SendTransactionModal({
             className="rounded-4 border border-gray-10 bg-gray-11 px-3 py-2 font-sans text-xs text-gray-1 outline-none"
           />
         </label>
-        <button className="mt-2 h-[36px] rounded-4 border border-gray-10 bg-gray-10 px-5 text-center transition-colors hover:bg-gray-8">
+        <button
+          className="mt-2 h-[36px] rounded-4 border border-gray-10 bg-gray-10 px-5 text-center transition-colors hover:bg-gray-8 disabled:cursor-not-allowed disabled:hover:bg-gray-10"
+          disabled={loading}
+        >
           <span className="text-xs font-semibold text-gray-1">Send</span>
         </button>
       </form>

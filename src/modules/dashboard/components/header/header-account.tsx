@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default function HeaderAccount({ className }: Props) {
-  const { disconnect } = useWallets();
+  const { disconnect, fullBalance } = useWallets();
   const { address } = useAccount();
   const toasts = useToasts();
 
@@ -32,7 +32,9 @@ export default function HeaderAccount({ className }: Props) {
                 height={24}
                 src={userAvatar}
               />
-              <span className="text-xs font-semibold">$37,555.24</span>
+              <span className="text-xs font-semibold">
+                ${fullBalance.toFixed(2)}
+              </span>
             </button>
           </div>
         }

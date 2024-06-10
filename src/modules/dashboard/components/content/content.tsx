@@ -17,7 +17,7 @@ const chains: Record<number, { name: string; logo: StaticImageData }> = {
 };
 
 export default function Content() {
-  const { tokens } = useWallets();
+  const { tokens, walletsBalances } = useWallets();
 
   return (
     <div className="size-full max-h-full overflow-y-auto bg-gray-12">
@@ -48,7 +48,10 @@ export default function Content() {
             }
           },
           transfer: () => alert(`Transfer ${token.name}`),
-          percentage: 100
+          percentage:
+            (Number(token.balance) /
+              walletsBalances[token.wallet.connector.name]) *
+              100 || 0
         }))}
       />
     </div>

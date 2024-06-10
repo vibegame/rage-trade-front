@@ -8,8 +8,6 @@ export default function TopBalances() {
   const { fullBalance, wallets, walletsBalances, chains, chainsBalances } =
     useWallets();
 
-  console.log({ fullBalance });
-
   return (
     <div className="border-b border-b-gray-10 bg-gray-11 py-3 pl-8">
       <div className="flex items-center gap-3">
@@ -26,7 +24,9 @@ export default function TopBalances() {
               <span className="mr-1 text-xs font-semibold text-gray-5">
                 Balance
               </span>
-              <span className="text-sm font-semibold">${fullBalance}</span>
+              <span className="text-sm font-semibold">
+                ${fullBalance.toFixed(2)}
+              </span>
             </p>
           </div>
 
@@ -48,7 +48,7 @@ export default function TopBalances() {
                     {wallet.connector.name}
                   </span>
                   <span className="text-sm font-semibold">
-                    ${walletsBalances[wallet.connector.name]}
+                    ${walletsBalances[wallet.connector.name]?.toFixed(2)}
                   </span>
                 </p>
               </div>
@@ -73,7 +73,7 @@ export default function TopBalances() {
                     {chain.name}
                   </span>
                   <span className="text-sm font-semibold">
-                    ${chainsBalances[chain.id]}
+                    ${chainsBalances[chain.id]?.toFixed(2)}
                   </span>
                 </p>
               </div>
