@@ -8,5 +8,6 @@ export const wagmiConfig = createConfig({
   transports: {
     [optimism.id]: http(),
     [arbitrum.id]: http()
-  }
+  },
+  ssr: true
 });
