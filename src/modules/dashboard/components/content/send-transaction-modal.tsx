@@ -1,3 +1,4 @@
+import { useTokens } from "modules/web3/tokens";
 import Image from "next/image";
 import { useState } from "react";
 import { chainLogoMap, tokensLogoMap } from "shared/assets";
@@ -33,6 +34,7 @@ export default function SendTransactionModal({
   onClose,
   prepare
 }: Props) {
+  const { accountTokens } = useTokens();
   const { switchChainAsync } = useSwitchChain();
   const { sendTransactionAsync } = useSendTransaction();
   const { writeContractAsync } = useWriteContract();
@@ -138,14 +140,35 @@ export default function SendTransactionModal({
           value={address}
           onChange={(event) => setAddress(event.target.value)}
         />
-        <Input
-          label="Amount"
-          type="text"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-        />
+        <div className="flex items-end">
+          <Input
+            label="Amount"
+            type="text"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            className="flex-1"
+          />
+          <button
+            type="button"
+            className="ml-2 h-[34px] text-xs text-purple"
+            onClick={() => {
+              const token = accountTokens.find(
+                (token) => token.symbol === prepare.token.symbol
+              );
 
-        <button className="mt-2 h-[36px] rounded-4 border border-gray-10 bg-gray-10 px-5 text-center transition-colors hover:bg-gray-8 disabled:cursor-not-allowed disabled:hover:bg-gray-10">
+              if (!token) return;
+
+              setAmount(token.balance.token);
+            }}
+          >
+            Max
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          className="mt-2 h-[36px] rounded-4 border border-gray-10 bg-gray-10 px-5 text-center transition-colors hover:bg-gray-8 disabled:cursor-not-allowed disabled:hover:bg-gray-10"
+        >
           <span className="text-xs font-semibold text-gray-1">Send</span>
         </button>
       </form>
