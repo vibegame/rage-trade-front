@@ -89,7 +89,7 @@ export const SUPPORTED_TOKENS: {
   }
 ];
 
-export const TOKEN_PRICES: Record<string, number> = {
+export const STATIC_TOKEN_PRICES: Record<string, number> = {
   USDC: 1,
   WBTC: 71742,
   WETH: 3820,

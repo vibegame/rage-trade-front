@@ -20,3 +20,9 @@ export const fetchHyperliquidBalance = async (accountAddress: Address) => {
     user: accountAddress
   });
 };
+
+export const fetchHyperliquidTokensCosts = async () => {
+  return hyperliquidClient.post<Record<string, string>>("/info", {
+    type: "allMids"
+  });
+};

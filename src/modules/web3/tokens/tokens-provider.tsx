@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAccount, useChains, useConnectors } from "wagmi";
 import { TokensContext } from "./tokens-context";
 import { formatUnits } from "viem";
 import { arbitrum } from "viem/chains";
 import groupBy from "lodash-es/groupBy";
-import { loadChainTokens, TOKEN_PRICES } from "./tokens";
-import { fetchHyperliquidBalance } from "../hyperliquid";
+import { loadChainTokens, STATIC_TOKEN_PRICES } from "./tokens";
+import {
+  fetchHyperliquidBalance,
+  fetchHyperliquidTokensCosts
+} from "../hyperliquid";
 import { AccountToken, HyperliquidToken } from "./types";
 import { walletsLogoMap } from "shared/assets";
 import { arbConfig, opConfig } from "../wagmi";
@@ -27,6 +30,14 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
   const [hyperliquidTokens, setHyperliquidTokens] = useState<
     HyperliquidToken[]
   >([]);
+  const [tokensCosts, setTokensCosts] = useState<Record<string, string>>({});
+
+  const getTokenPrice = useCallback(
+    (symbol: string) => {
+      return Number(tokensCosts[symbol] || STATIC_TOKEN_PRICES[symbol] || 0);
+    },
+    [tokensCosts]
+  );
 
   const connector = useMemo(
     () => connectors.find((connector) => connector.id === accountConnector?.id),
@@ -52,13 +63,13 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
 
     Object.entries(tokensByChain).forEach(([chainId, tokens]) => {
       res[Number(chainId)] = tokens.reduce((acc, token) => {
-        const price = TOKEN_PRICES[token.symbol];
+        const price = getTokenPrice(token.symbol);
         return acc + Number(token.balance.token) * price;
       }, 0);
     });
 
     return res;
-  }, [accountTokens]);
+  }, [accountTokens, getTokenPrice]);
 
   useEffect(() => {
     if (accountAddress) {
@@ -74,6 +85,7 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
         setAccountTokens(
           tokens.map((token) => {
             const tokenBalance = formatUnits(token.value, token.decimals);
+            const price = getTokenPrice(token.symbol);
 
             return {
               type: "account",
@@ -82,7 +94,7 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
               decimals: token.decimals,
               chainId: token.chainId,
               balance: {
-                usd: TOKEN_PRICES[token.symbol] * Number(tokenBalance),
+                usd: price * Number(tokenBalance),
                 token: tokenBalance
               },
               accountAddress,
@@ -95,7 +107,7 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
 
       loadTokens();
     }
-  }, [accountAddress, chains, connector]);
+  }, [accountAddress, chains, connector, getTokenPrice, tokensCosts]);
 
   // Load Hyperliquid balance
   useEffect(() => {
@@ -113,14 +125,14 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
               icon: walletsLogoMap.hyperliquid
             },
             balance: {
-              usd: Number(balance.total),
+              usd: Number(balance.total) * getTokenPrice(balance.coin),
               token: balance.total
             }
           }))
         );
       });
     }
-  }, [accountAddress]);
+  }, [accountAddress, getTokenPrice, tokensCosts]);
 
   useEffect(() => {
     if (isDisconnected) {
@@ -128,6 +140,12 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
       setHyperliquidTokens([]);
     }
   }, [isDisconnected]);
+
+  useEffect(() => {
+    fetchHyperliquidTokensCosts().then((res) => {
+      setTokensCosts(res.data);
+    });
+  }, []);
 
   return (
     <TokensContext.Provider
