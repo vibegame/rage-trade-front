@@ -1,99 +1,99 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useAccount, useConnectors } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import { useAccount, useChains, useConnectors } from "wagmi";
 import { TokensContext } from "./tokens-context";
-import { Address, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { arbitrum } from "viem/chains";
-import { getBalance } from "wagmi/actions";
 import groupBy from "lodash-es/groupBy";
-import { SUPPORTED_TOKENS, TOKEN_PRICES } from "./tokens";
+import { loadChainTokens, TOKEN_PRICES } from "./tokens";
 import { fetchHyperliquidBalance } from "../hyperliquid";
 import { AccountToken, HyperliquidToken } from "./types";
 import { walletsLogoMap } from "shared/assets";
-import { wagmiConfig } from "../wagmi";
+import { arbConfig, opConfig } from "../wagmi";
 
 type TokensProviderProps = {
   children: React.ReactNode;
 };
 
 const TokensProvider = ({ children }: TokensProviderProps) => {
+  const chains = useChains();
+  const { connector: accountConnector, address: accountAddress } = useAccount();
+  const connectors = useConnectors();
   const [accountTokens, setAccountTokens] = useState<AccountToken[]>([]);
   const [hyperliquidTokens, setHyperliquidTokens] = useState<
     HyperliquidToken[]
   >([]);
-  const { connector: accountConnector, address: accountAddress } = useAccount();
-  const connectors = useConnectors();
 
-  const connector = connectors.find((c) => c.id === accountConnector?.id);
+  const connector = useMemo(
+    () => connectors.find((connector) => connector.id === accountConnector?.id),
+    [accountConnector, connectors]
+  );
 
-  const accountBalance = accountTokens.reduce((acc, token) => {
-    const price = TOKEN_PRICES[token.symbol];
-    return acc + Number(token.balance.token) * price;
-  }, 0);
+  const accountBalance = useMemo(
+    () => accountTokens.reduce((acc, token) => acc + token.balance.usd, 0),
+    [accountTokens]
+  );
 
-  const hyperliquidBalance = hyperliquidTokens.reduce(
-    (acc, token) => acc + token.balance.usd,
-    0
+  const hyperliquidBalance = useMemo(
+    () => hyperliquidTokens.reduce((acc, token) => acc + token.balance.usd, 0),
+    [hyperliquidTokens]
   );
 
   const fullBalance = accountBalance + hyperliquidBalance;
 
-  const tokensByChain = groupBy(accountTokens, (token) => token.chainId);
+  const chainsBalances = useMemo(() => {
+    const tokensByChain = groupBy(accountTokens, "chainId");
 
-  let chainsBalances: Record<number, number> = {};
+    const res: Record<number, number> = {};
 
-  Object.entries(tokensByChain).forEach(([chainId, tokens]) => {
-    chainsBalances[Number(chainId)] = tokens.reduce((acc, token) => {
-      const price = TOKEN_PRICES[token.symbol];
-      return acc + Number(token.balance.token) * price;
-    }, 0);
-  });
+    Object.entries(tokensByChain).forEach(([chainId, tokens]) => {
+      res[Number(chainId)] = tokens.reduce((acc, token) => {
+        const price = TOKEN_PRICES[token.symbol];
+        return acc + Number(token.balance.token) * price;
+      }, 0);
+    });
+
+    return res;
+  }, [accountTokens]);
 
   useEffect(() => {
-    const getTokensBalance = async (
-      accountAddress: Address
-    ): Promise<AccountToken[]> => {
-      const awaitedTokens = await Promise.all(
-        SUPPORTED_TOKENS.map(async ({ contractAddress, chainId, symbol }) => ({
-          symbol,
-          chainId,
-          data: await getBalance(wagmiConfig, {
-            address: accountAddress,
-            chainId: chainId as any,
-            token: contractAddress
-          }),
-          contractAddress
-        }))
-      );
-
-      return awaitedTokens.map(({ data, chainId, symbol, contractAddress }) => {
-        const tokenBalance = formatUnits(data.value, data.decimals);
-
-        return {
-          type: "account",
-          name: data.symbol,
-          symbol,
-          decimals: data.decimals,
-          chainId,
-          balance: {
-            usd: TOKEN_PRICES[symbol] * Number(tokenBalance),
-            token: tokenBalance
-          },
-          accountAddress,
-          contractAddress: contractAddress!,
-          connector: connector!
-        };
-      });
-    };
-
     if (accountAddress) {
-      getTokensBalance(accountAddress).then(setAccountTokens);
-    } else {
-      setAccountTokens([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountAddress]);
+      const loadTokens = async () => {
+        const tokens = (
+          await Promise.all(
+            [arbConfig, opConfig].map((config) =>
+              loadChainTokens(config, accountAddress)
+            )
+          )
+        ).flat();
 
+        setAccountTokens(
+          tokens.map((token) => {
+            const tokenBalance = formatUnits(token.value, token.decimals);
+
+            return {
+              type: "account",
+              name: token.symbol,
+              symbol: token.symbol,
+              decimals: token.decimals,
+              chainId: token.chainId,
+              balance: {
+                usd: TOKEN_PRICES[token.symbol] * Number(tokenBalance),
+                token: tokenBalance
+              },
+              accountAddress,
+              contractAddress: token.contractAddress,
+              connector: connector!
+            };
+          })
+        );
+      };
+
+      loadTokens();
+    }
+  }, [accountAddress, chains, connector]);
+
+  // Load Hyperliquid balance
   useEffect(() => {
     if (accountAddress) {
       fetchHyperliquidBalance(accountAddress).then((res) => {

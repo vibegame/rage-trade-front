@@ -1,4 +1,7 @@
-import { Address } from "viem";
+import chunk from "lodash-es/chunk";
+import { Address, erc20Abi } from "viem";
+import { Config } from "wagmi";
+import { getBalance, multicall } from "wagmi/actions";
 import { arbitrum, optimism } from "wagmi/chains";
 
 export const SUPPORTED_TOKENS: {
@@ -96,4 +99,58 @@ export const TOKEN_PRICES: Record<string, number> = {
   ARB: 1.1,
   OP: 2.53,
   ETH: 3820
+};
+
+export const loadChainTokens = async (
+  config: Config,
+  accountAddress: Address
+) => {
+  const chainId = config.chains[0].id;
+  const tokens = SUPPORTED_TOKENS.filter(
+    (t) => !!t.contractAddress && t.chainId === chainId
+  );
+
+  const contracts = tokens
+    .map(({ contractAddress }) => [
+      {
+        address: contractAddress as Address,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [accountAddress as Address]
+      },
+      {
+        address: contractAddress as Address,
+        abi: erc20Abi,
+        functionName: "decimals"
+      },
+      {
+        address: contractAddress as Address,
+        abi: erc20Abi,
+        functionName: "symbol"
+      }
+    ])
+    .flat();
+
+  const response = await multicall(config, { contracts });
+  const eth = await getBalance(config, {
+    address: accountAddress,
+    chainId
+  });
+
+  return [
+    {
+      value: eth.value,
+      chainId: chainId,
+      decimals: eth.decimals,
+      symbol: eth.symbol,
+      contractAddress: undefined
+    },
+    ...chunk(response, 3).map(([balance, decimals, symbol], index) => ({
+      value: balance.result as bigint,
+      decimals: decimals.result as number,
+      symbol: symbol.result as string,
+      contractAddress: tokens[index].contractAddress as Address,
+      chainId: tokens[index].chainId
+    }))
+  ];
 };

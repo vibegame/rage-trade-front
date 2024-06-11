@@ -10,7 +10,7 @@ export type AccountToken = {
   chainId: number;
   decimals: number;
   accountAddress: Address;
-  contractAddress: Address;
+  contractAddress?: Address;
   connector: Connector;
   balance: {
     token: string;

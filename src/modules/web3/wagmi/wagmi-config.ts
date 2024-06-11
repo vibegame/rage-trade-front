@@ -11,3 +11,19 @@ export const wagmiConfig = createConfig({
   },
   ssr: true
 });
+
+export const opConfig = createConfig({
+  chains: [optimism],
+  transports: {
+    [optimism.id]: http()
+  },
+  ssr: true
+});
+
+export const arbConfig = createConfig({
+  chains: [arbitrum],
+  transports: {
+    [arbitrum.id]: http()
+  },
+  ssr: true
+});

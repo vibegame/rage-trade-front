@@ -10,6 +10,7 @@ import SendTransactionModal, {
   PrepareTransaction
 } from "../send-transaction-modal";
 import { TableColumn } from "./types";
+import { AiFillQuestionCircle } from "react-icons/ai";
 
 export default function TableBalances() {
   const { isConnected } = useAccount();
@@ -83,19 +84,27 @@ export default function TableBalances() {
       {
         key: "asset",
         title: "Asset",
-        render: (token: AccountToken | HyperliquidToken) => (
-          <div className="flex items-center gap-2">
-            <Image
-              src={tokensLogoMap[token.symbol]}
-              width={24}
-              height={24}
-              alt="Asset Logo"
-            />
-            <span className="text-xs font-semibold text-gray-1">
-              {token.name}
-            </span>
-          </div>
-        )
+        render: (token: AccountToken | HyperliquidToken) => {
+          const assetLogo = tokensLogoMap[token.symbol];
+
+          return (
+            <div className="flex items-center gap-2">
+              {!!assetLogo ? (
+                <Image
+                  src={tokensLogoMap[token.symbol]}
+                  width={24}
+                  height={24}
+                  alt="Asset Logo"
+                />
+              ) : (
+                <AiFillQuestionCircle size={24} className="text-gray-5" />
+              )}
+              <span className="text-xs font-semibold text-gray-1">
+                {token.name}
+              </span>
+            </div>
+          );
+        }
       },
       {
         key: "balance",
