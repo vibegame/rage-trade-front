@@ -17,7 +17,11 @@ type TokensProviderProps = {
 
 const TokensProvider = ({ children }: TokensProviderProps) => {
   const chains = useChains();
-  const { connector: accountConnector, address: accountAddress } = useAccount();
+  const {
+    connector: accountConnector,
+    address: accountAddress,
+    isDisconnected
+  } = useAccount();
   const connectors = useConnectors();
   const [accountTokens, setAccountTokens] = useState<AccountToken[]>([]);
   const [hyperliquidTokens, setHyperliquidTokens] = useState<
@@ -117,6 +121,13 @@ const TokensProvider = ({ children }: TokensProviderProps) => {
       });
     }
   }, [accountAddress]);
+
+  useEffect(() => {
+    if (isDisconnected) {
+      setAccountTokens([]);
+      setHyperliquidTokens([]);
+    }
+  }, [isDisconnected]);
 
   return (
     <TokensContext.Provider

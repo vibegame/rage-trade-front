@@ -70,7 +70,9 @@ export default function HeaderAccount({ className }: Props) {
               <button
                 className="mt-2 inline-flex h-[32px] w-full items-center justify-center gap-2 rounded-4 bg-gray-9 transition-colors hover:bg-gray-8"
                 onClick={() => {
-                  disconnectAsync();
+                  disconnectAsync({
+                    connector
+                  });
                 }}
               >
                 <span>Disconnect</span>
